@@ -1,2 +1,2 @@
 # webScraper
-web scraper to help finding jobs easier
+Personal webscraper to make job hunting easier
