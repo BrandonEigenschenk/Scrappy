@@ -3,23 +3,19 @@ from bs4 import BeautifulSoup
 import math
 import pandas as pd
 
-def getKeyWord() -> str:
-    return input("Enter search string: ").strip().replace(" ", "%20")
-
-def buildLinkedinList(keyword:str) -> None:
-    
+def buildLinkedinList(keyword:str, max_jobs: int) -> None:
     job_url = "https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{}"
     GEO_ID = "&geoId=103743442&location=Houston%2C%20Texas%2C%20United%20States"
-    MAX_JOBS = 100
     id_list = []
+    # max_jobs = 100
     temp = {}
     posting_list = []
     target_url="https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords="+ keyword + GEO_ID + "&start={}"
 
-    for i in range(0,math.ceil(MAX_JOBS/25)):
+    for i in range(0,math.ceil(max_jobs/25)):
         res = requests.get(target_url.format(i))
         soup=BeautifulSoup(res.text,'html.parser')
-        alljobs_on_this_page=soup.find_all("li")
+        alljobs_on_this_page=soup.find_all("li")[:max_jobs:]
 
         for x in range(0,len(alljobs_on_this_page)):
             jobid = alljobs_on_this_page[x].find("div",{"class":"base-card"}).get('data-entity-urn').split(":")[3]
