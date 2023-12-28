@@ -1,7 +1,25 @@
-import requests
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 import math
+import os
 import pandas as pd
+import pymongo
+import requests
+
+load_dotenv()
+
+myclient = pymongo.MongoClient(os.getenv("MONGO_DB"))
+mydb = myclient[os.getenv("CLIENT")]
+mycol = mydb[os.getenv("COLLECTION")]
+
+def getDBList() -> list:
+    temp_list = []
+
+    x = mycol.find({})
+    for element in x:
+        temp_list.append(element["job id"])
+
+    return temp_list
 
 def buildLinkedinList(keyword:str, max_jobs: int) -> None:
     job_url = "https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{}"
@@ -11,6 +29,8 @@ def buildLinkedinList(keyword:str, max_jobs: int) -> None:
     temp = {}
     posting_list = []
     target_url="https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords="+ keyword + GEO_ID + "&start={}"
+
+    existing_id_list = getDBList()
 
     for i in range(0,math.ceil(max_jobs/25)):
         res = requests.get(target_url.format(i))
@@ -25,25 +45,31 @@ def buildLinkedinList(keyword:str, max_jobs: int) -> None:
         response = requests.get(job_url.format(id_list[i]))
         soup = BeautifulSoup(response.text, "html.parser")
 
-        try:
-            temp["company"]=soup.find("div",{"class":"top-card-layout__card"}).find("a").find("img").get('alt')
-        except:
-            continue
+        if(id_list[i] not in existing_id_list):
+        
+            temp["job id"] = id_list[i]
 
-        try:
-            temp["job_title"] = soup.find("div",{"class": "top-card-layout__entity-info-container"}).find("div", class_ = "top-card-layout__entity-info").find("a").find("h2", class_ = "top-card-layout__title").text.strip()
-        except:
-            continue
+            try:
+                temp["company"]=soup.find("div",{"class":"top-card-layout__card"}).find("a").find("img").get('alt')
+            except:
+                continue
 
-        try:
-            temp["level"] = soup.find("ul",{"class":"description__job-criteria-list"}).find("li").text.replace("Seniority level","").strip()
-        except:
-            continue
+            try:
+                temp["job_title"] = soup.find("div",{"class": "top-card-layout__entity-info-container"}).find("div", class_ = "top-card-layout__entity-info").find("a").find("h2", class_ = "top-card-layout__title").text.strip()
+            except:
+                continue
 
-        temp["URL"] = job_url.format(id_list[i])
+            try:
+                temp["level"] = soup.find("ul",{"class":"description__job-criteria-list"}).find("li").text.replace("Seniority level","").strip()
+            except:
+                continue
 
-        posting_list.append(temp)
-        temp = {}
+            temp["URL"] = job_url.format(id_list[i])
+            temp["Source"] = "LinkedIn"
 
-    output = pd.DataFrame(posting_list)
-    output.to_csv("Job_list.csv", index=False, encoding="utf-8")
+            posting_list.append(temp)
+            temp = {}
+    
+    x = mycol.insert_many(posting_list)
+
+    print(x.inserted_ids)

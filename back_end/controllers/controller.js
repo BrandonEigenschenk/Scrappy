@@ -1,17 +1,15 @@
 const asyncHandler = require("express-async-handler");
+const monmodel = require("../models/jobModels")
 
 const getJobList = asyncHandler(async (req, res) => {
     const {keyword, location, query_length} = req.body;
-    if (!keyword || !location || !query_length) {
-        res.status(400);
-        throw new Error("Invalid request");
+    try {
+        const data = await YourModel.find({});
+        res.status(200).json(data);
     }
-    else if (query_length > 100) {
-        res.status(400);
-        throw new Error("Too many results requested");
-    }
-    else {
-        res.status(200).json("YOOOOOO YOU ARE GAY");
+    catch (err) {
+        console.error(`An error has occuerd: ${err}`);
+
     }
 });
 

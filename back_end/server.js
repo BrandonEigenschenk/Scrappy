@@ -1,12 +1,24 @@
+// server.js
+
 const express = require("express");
 const connectDB = require("./config/dbConnection");
+const JobListings = require("./models/jobModels");
 
 const app = express();
-const port = 3000
+const port = process.env.PORT || 3000;
 
-connectDB();
+connectDB(); // Ensure database connection is established
 
-app.use(express.json());
-app.use("/api/getlist", require("./routes/routes"));
+app.get("/getData", async (req, res) => {
+    try {
+        const data = await JobListings.find({});
+        res.json(data);
+    } catch (error) {
+        console.error("Error fetching data:", error.message);
+        res.status(500).send("Internal Server Error");
+    }
+});
 
-app.listen(port, () => console.log(`Server is running on port ${port}`));
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});

@@ -10,7 +10,6 @@ def resultLength() -> int:
             return int(length)
         else: print("Error!")
 
-
 def main():
     keyword = getKeyWord()
     search_len = resultLength()
