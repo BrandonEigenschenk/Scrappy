@@ -1,16 +1,15 @@
 const asyncHandler = require("express-async-handler");
-const monmodel = require("../models/jobModels")
+const JobListings = require("../models/jobModels");
 
 const getJobList = asyncHandler(async (req, res) => {
-    const {keyword, location, query_length} = req.body;
     try {
-        const data = await YourModel.find({});
+        const data = await JobListings.find({});
         res.status(200).json(data);
-    }
-    catch (err) {
-        console.error(`An error has occuerd: ${err}`);
-
+    } catch (error) {
+        console.error("Error fetching data:", error.message);
+        res.status(500).send("Internal Server Error");
     }
 });
+
 
 module.exports = {getJobList};

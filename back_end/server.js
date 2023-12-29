@@ -1,23 +1,19 @@
-// server.js
-
 const express = require("express");
 const connectDB = require("./config/dbConnection");
-const JobListings = require("./models/jobModels");
+// const JobListings = require("./models/jobModels");
+const cors = require("cors");
+const fetch = require("node-fetch");
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-connectDB(); // Ensure database connection is established
+connectDB(); 
+app.use(cors());
+const corsOptions = {
+    origin: "http://localhost:5173"
+}
 
-app.get("/getData", async (req, res) => {
-    try {
-        const data = await JobListings.find({});
-        res.json(data);
-    } catch (error) {
-        console.error("Error fetching data:", error.message);
-        res.status(500).send("Internal Server Error");
-    }
-});
+app.use("/getData", cors(corsOptions), require("./routes/routes.js"));
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

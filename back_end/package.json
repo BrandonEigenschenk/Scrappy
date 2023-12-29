@@ -11,7 +11,10 @@
   "author": "Brandon Eigenschenk",
   "license": "MIT",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.2",
+    "mongoose": "^8.0.3",
+    "node-fetch": "^2.7.0",
     "nodemon": "^3.0.2"
   }
 }
