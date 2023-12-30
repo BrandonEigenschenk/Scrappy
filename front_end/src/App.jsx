@@ -6,9 +6,14 @@ export default function App() {
 
   function jobsAsLIs() {
     return jobs.map((job) => (
-      <li key={job._id}>
-        <strong>{job.job_title}</strong> - <a href = {job.URL}>{job.Source}</a>
-      </li>
+      <tr key={job._id}>
+        <td> {job.job_title}</td>
+        <td> 
+          <a href = {job.URL}>{job.URL}</a>
+        </td>
+        <td> {job.Source}</td>
+        {/* <strong>{job.job_title}</strong> - <a href = {job.URL}>{job.Source}</a> */}
+      </tr>
     ));
   }
 
@@ -26,8 +31,16 @@ export default function App() {
   return (
     <div className="App">
       <h1>List of jobs</h1>
-      <ul>{jobsAsLIs()}</ul>
-      <button onClick={getJobs}>Update Jobs</button>
+      <table>
+        <tbody>
+          <tr>
+            <th>Job Title</th>
+            <th>URL</th>
+            <th>Source</th>
+          </tr>
+          {jobsAsLIs(getJobs())}
+        </tbody>
+      </table>
     </div>
   );
 }
